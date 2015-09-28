@@ -11,44 +11,69 @@ import org.newdawn.slick.state.StateBasedGame;
 public class TrackScreen extends BasicGameState {
 
 	private int stateID = -1;
-	//Sprite player;
-	Sprite track;
-	Sprite track2;
-	Sprite blueS;
-	Sprite whiteS;
-	Sprite water;
+	
+	//Sprites
+	Sprite track, track2, blueS, whiteS, water;
 	AnimatedSprite player;
 
-	//timer code
+	//timer code 
+	//1000 = one second
 	boolean ready = true;
-	long delay = 1400; //1000 = one second
-	long lastHit; //the time of the last shot
-
-	//timer code
+	long delay = 1400, lastHit; //the last time you hit barrier
 	boolean ready2 = true;
-	long delay2 = 500;
-	long lastJump; //the time of the last shot
+	long delay2 = 500, lastJump;//the last time you jumped
 
-	public static final float GRAVITY = 0.2f;
+	//gravity constant
+	private static final float GRAVITY = 0.2f;
 
-	float temp;//just a temp variable...currently being used to store player speed
-
-	int barrier=0;
+	//counts the barriers you've passed
+	int barrier = 0;
+	
+	//if you pause the game, or enter a new level
+	boolean keep = true;
+	
+	float seconds = 0, minutes = 0, tempSpeed;
+	public static float fSecnd, fMnutes;
 
 	public TrackScreen(int id){
 		stateID = id;
 	}
 
 	public void enter(GameContainer gc, StateBasedGame sb) throws SlickException {
-		player.x = 0;
-		player.y = 400;
-	}
+		if(keep == false){
+			//HUD variables
+			seconds = 0;
+			minutes = 0;
+			barrier = 0;
+			
+			//all sprites
+			player.x = 0;
+			player.y = 400;
+			player.speed = 1.0f;
+			player.jumpSpeed = -1.5f;
+			
+			blueS.x = 5000;
+			blueS.y = (gc.getHeight() - blueS.image.getHeight()) - 50;
+			
+			whiteS.x = 7500;
+			whiteS.y = (gc.getHeight() - whiteS.image.getHeight()) - 50;
+			
+			water.x = 12510 + blueS.image.getWidth();
+			water.y = gc.getHeight() - water.image.getHeight();
+			
+			track.x = 0;
+			track.y = (gc.getHeight()-track.image.getHeight());
+
+			track2.x = track.x+track.image.getWidth();
+			track2.y = (gc.getHeight()-track2.image.getHeight());
+		}
+	}//end enter
 
 	@Override
 	public void init(GameContainer gc, StateBasedGame sb) throws SlickException {
-		player = new AnimatedSprite(new Image("res/GameWalker.png"), 104, 155 , 50);
+		player = new AnimatedSprite(new Image("res/runner.png"), 129, 150, 20);
 		player.x = 0;
-		player.y = 0;
+		player.y = 400;
 		player.alive = true;
 		player.speed = 1.0f;
 		player.jumpSpeed = -1.5f;
@@ -81,20 +106,41 @@ public class TrackScreen extends BasicGameState {
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame sb, Graphics g) throws SlickException {
-		g.setBackground(Color.orange);
+		gc.setShowFPS(true);
 		player.draw(g);
 		track.draw(g);
 		track2.draw(g);
 		water.draw(g);
 		blueS.draw(g);
 		whiteS.draw(g);
-	}
+		drawHUD(gc,g);
+	}//end render
+	
+	public void drawHUD(GameContainer gc, Graphics g){
+		g.drawString("Time - " + (int)minutes + ":", 1070, 20);
+		g.drawString(""+String.format("%02d",(int)seconds), 1155, 20);
+		g.drawString("Barrier - "+barrier, 1070, 40);
+	}//end drawHUD
 
 	@Override
 	public void update(GameContainer gc, StateBasedGame sb, int delta) throws SlickException {
 		Input input = gc.getInput();
-		if(input.isKeyPressed(Input.KEY_ESCAPE))
+		
+		seconds += 0.001f * delta;//the timer for the race
+		if((int)seconds>59){
+			minutes++;
+			seconds = 0;
+		}
+		
+		if(input.isKeyDown(Input.KEY_ESCAPE))
 			sb.enterState(Main.PAUSESCREEN);
+		
+		if(barrier == 34 && blueS.x < 0){
+			keep = false;
+			fMnutes = minutes;
+			fSecnd = seconds;
+			sb.enterState(Main.LEVELSCREEN);
+		}
 
 		keepOnScreen(gc,player);
 		movePlayer(gc,delta,sb);
@@ -102,7 +148,7 @@ public class TrackScreen extends BasicGameState {
 		moveBarrier();
 		moveWater();
 		updatePlayer(gc,sb,delta,input);
-	}
+	}//end update
 
 	public void updatePlayer(GameContainer gc, StateBasedGame sb, int delta, Input input) throws SlickException {
 		Input in = gc.getInput();
@@ -150,20 +196,20 @@ public class TrackScreen extends BasicGameState {
 			ready = true;
 		//end of timer for blue barrier
 
-		temp = player.speed;
+		tempSpeed = player.speed;
 		//timer for waterJump
 		if((player.x > water.x+5) && (player.x < (water.x+water.image.getWidth())) && (player.y >= 338) && ready2){
-			player.speed = (float)temp/2;
+			player.speed = (float)tempSpeed/2;
 			ready2 = false;
 			lastJump = System.currentTimeMillis();
 		}
 
 		if(lastJump + delay2 <= System.currentTimeMillis() && ready2 == false){
 			ready2 = true;
-			player.speed = temp*2;
+			player.speed = tempSpeed*2;
 		}
 		//end timer for waterJump
-	}
+	}//end updatePlayer
 
 	public void movePlayer(GameContainer gc, int delta, StateBasedGame sb) {
 		Input input = gc.getInput();
@@ -188,7 +234,7 @@ public class TrackScreen extends BasicGameState {
 
 		if(track2.x+track2.image.getWidth() <= 0)
 			track2.x = track.x + track.image.getWidth();
-	}
+	}//end moveMap
 
 	public void moveBarrier() {
 		if(blueS.x+blueS.image.getWidth() <= 0){
@@ -204,7 +250,7 @@ public class TrackScreen extends BasicGameState {
 			whiteS.alive = false;
 			blueS.alive = false;
 		}
-	}
+	}//endMoveBarrier
 
 	public void moveWater() {
 		if(water.x+water.image.getWidth() <= 0){
@@ -215,7 +261,7 @@ public class TrackScreen extends BasicGameState {
 				water.x = blueS.x+10;
 			}
 		}
-	}
+	}//end moveWater
 
 	public void keepOnScreen(GameContainer gc, Sprite s) {
 		//left
@@ -227,8 +273,8 @@ public class TrackScreen extends BasicGameState {
 			s.x = gc.getWidth() - s.image.getWidth();
 
 		//keep above the track
-		if(s.y + s.image.getHeight() > gc.getHeight() - 69)
-			s.y = gc.getHeight() - s.image.getHeight() - 69;
+		if(s.y + s.image.getHeight() > gc.getHeight() - track.image.getHeight())
+			s.y = gc.getHeight() - track.image.getHeight() - s.image.getHeight();
 	}//end keepOnScreen
 
 	public void keepOnScreen(GameContainer gc, AnimatedSprite s) {
@@ -237,17 +283,16 @@ public class TrackScreen extends BasicGameState {
 			s.x = 0;
 
 		//right
-		if(s.x + s.image.getWidth() > gc.getWidth())
-			s.x = gc.getWidth() - s.image.getWidth();
+		if(s.x + s.anim.getImage(0).getWidth() > gc.getWidth())
+			s.x = gc.getWidth() - s.anim.getImage(0).getWidth();
 
 		//keep above the track
-		if(s.y + s.image.getHeight() > gc.getHeight() - 69)
-			s.y = gc.getHeight() - s.image.getHeight() - 69;
-
-	}
+		if(s.y + s.image.getHeight() > gc.getHeight() - track.image.getHeight())
+			s.y = gc.getHeight() - track.image.getHeight() - s.image.getHeight();
+	}//end keepOnScreen Animated Sprite
 
 	@Override
 	public int getID() {
 		return stateID;
-	}
+	}//end getID
 }

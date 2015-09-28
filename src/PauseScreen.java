@@ -21,7 +21,7 @@ public class PauseScreen extends BasicGameState{
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame sb, Graphics g) throws SlickException {
-		// TODO Auto-generated method stub
+		gc.setShowFPS(false);
 		g.drawString("PauseScreen", 50, 50);
 	}
 
@@ -30,10 +30,10 @@ public class PauseScreen extends BasicGameState{
 		// TODO Auto-generated method stub
 		Input input = gc.getInput();
 
-		if(input.isKeyPressed(input.KEY_ENTER)){
+		if(input.isKeyDown(input.KEY_ENTER)){
 			sb.enterState(Main.TRACKSCREEN);
 		}
-		else if(input.isKeyPressed(input.KEY_Q)){
+		else if(input.isKeyDown(input.KEY_Q)){
 			sb.enterState(Main.ENDSCREEN);
 		}
 

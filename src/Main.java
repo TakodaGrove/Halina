@@ -10,6 +10,7 @@ public class Main extends StateBasedGame {
 	public static final int PAUSESCREEN = 2;
 	public static final int ENDSCREEN = 3;
 	public static final int LEVELSCREEN = 4;
+	public static final int HUBSCREEN = 5;
 	
 	public Main(String name) {
 		
@@ -20,6 +21,7 @@ public class Main extends StateBasedGame {
 		this.addState(new PauseScreen(PAUSESCREEN));
 		this.addState(new EndScreen(ENDSCREEN));
 		this.addState(new LevelScreen(LEVELSCREEN));
+		this.addState(new HUBScreen(HUBSCREEN));
 		this.enterState(STARTSCREEN);
 		
 	}
@@ -38,6 +40,7 @@ public class Main extends StateBasedGame {
 		this.getState(PAUSESCREEN).init(gc, this);
 		this.getState(ENDSCREEN).init(gc, this);
 		this.getState(LEVELSCREEN).init(gc, this);
+		this.getState(HUBSCREEN).init(gc, this);
 		
 	}
 }

@@ -21,7 +21,7 @@ public class EndScreen extends BasicGameState{
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame sb, Graphics g) throws SlickException {
-		// TODO Auto-generated method stub
+		gc.setShowFPS(false);
 		g.drawString("EndScreen", 50, 50);
 	}
 
