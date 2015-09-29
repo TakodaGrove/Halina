@@ -1,6 +1,7 @@
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 
 public class AnimatedSprite extends Sprite{
@@ -18,7 +19,7 @@ public class AnimatedSprite extends Sprite{
 	 * duration = how long between frames
 	 */
 	
-	public AnimatedSprite(Image i, int w, int h, int duration)
+	public AnimatedSprite(Image i, int w, int h, int duration) throws SlickException
 	{
 		super(i);
 		SpriteSheet ss = new SpriteSheet(i, w, h);
@@ -27,9 +28,9 @@ public class AnimatedSprite extends Sprite{
 	
 	public void draw(Graphics g)
 	{
+		//System.out.println(anim.getCurrentFrame());
 		if(alive)
 		{
-			//anim.stopAt(6);
 			Image fr = anim.getCurrentFrame();
 			if(anim.getFrame() != anim.getFrameCount()-1)
 			{

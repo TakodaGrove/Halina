@@ -39,17 +39,15 @@ public class StartScreen extends BasicGameState{
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame sb, Graphics g) throws SlickException {
-		// TODO Auto-generated method stub
+		gc.setShowFPS(false);
 		background.draw(0,0);
 		
 		Input input = gc.getInput();
-		
-		//g.drawImage(start.image, start.x, start.y, Color.blue);
 
 		if(start.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
 		{
 			
-			g.drawImage(start.image, start.x, start.y, Color.blue);
+			g.drawImage(start.image, start.x, start.y, Color.yellow);
 			
 		}
 		else
@@ -62,7 +60,7 @@ public class StartScreen extends BasicGameState{
 		if(quit.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
 		{
 			
-			g.drawImage(quit.image, quit.x, quit.y, Color.blue);
+			g.drawImage(quit.image, quit.x, quit.y, Color.yellow);
 			
 		}
 		else
@@ -79,7 +77,7 @@ public class StartScreen extends BasicGameState{
 		Input input = gc.getInput();
 		
 		if(input.isMouseButtonDown(0) && start.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
-			sb.enterState(Main.TRACKSCREEN);
+			sb.enterState(Main.HUBSCREEN);
 		
 		if(input.isMouseButtonDown(0) && quit.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
 			gc.exit();
