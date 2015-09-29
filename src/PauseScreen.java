@@ -8,6 +8,8 @@ import org.newdawn.slick.state.StateBasedGame;
 public class PauseScreen extends BasicGameState{
 
 	private int stateID = -1;
+	
+	public static int screen = 0;
 
 	public PauseScreen(int id) {
 		stateID = id;
@@ -30,14 +32,23 @@ public class PauseScreen extends BasicGameState{
 		// TODO Auto-generated method stub
 		Input input = gc.getInput();
 
-		if(input.isKeyDown(input.KEY_ENTER)){
-			sb.enterState(Main.TRACKSCREEN);
+		if(input.isKeyDown(Input.KEY_ENTER)){
+			if(screen == 1){
+				screen = 0;
+				sb.enterState(Main.TRACKSCREEN);
+			}
+			else if(screen == 2){
+				screen = 0;
+				sb.enterState(Main.TRAININGSCREEN);
+			}
+			else if(screen == 3){
+				screen = 0;
+				sb.enterState(Main.HUBSCREEN);
+			}
 		}
-		else if(input.isKeyDown(input.KEY_Q)){
+		else if(input.isKeyDown(Input.KEY_Q))
 			sb.enterState(Main.ENDSCREEN);
-		}
-
-	}
+	}//end update
 
 	@Override
 	public int getID() {

@@ -43,13 +43,11 @@ public class StartScreen extends BasicGameState{
 		background.draw(0,0);
 		
 		Input input = gc.getInput();
-		
-		//g.drawImage(start.image, start.x, start.y, Color.blue);
 
 		if(start.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
 		{
 			
-			g.drawImage(start.image, start.x, start.y, Color.blue);
+			g.drawImage(start.image, start.x, start.y, Color.yellow);
 			
 		}
 		else
@@ -62,7 +60,7 @@ public class StartScreen extends BasicGameState{
 		if(quit.spriteCollisionByPoint(input.getAbsoluteMouseX(), input.getAbsoluteMouseY()))
 		{
 			
-			g.drawImage(quit.image, quit.x, quit.y, Color.blue);
+			g.drawImage(quit.image, quit.x, quit.y, Color.yellow);
 			
 		}
 		else

@@ -30,7 +30,7 @@ public class EndScreen extends BasicGameState{
 		// TODO Auto-generated method stub
 		Input input = gc.getInput();
 
-		if(input.isKeyPressed(input.KEY_ENTER)){
+		if(input.isKeyPressed(Input.KEY_ENTER)){
 			gc.exit();
 		}
 	}

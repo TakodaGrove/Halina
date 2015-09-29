@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -18,10 +16,12 @@ public class TrackScreen extends BasicGameState {
 
 	//timer code 
 	//1000 = one second
-	boolean ready = true;
-	long delay = 1400, lastHit; //the last time you hit barrier
-	boolean ready2 = true;
-	long delay2 = 500, lastJump;//the last time you jumped
+	boolean readyHit = true;
+	long delayHit = 1400, lastHit; //the last time you hit barrier
+	boolean readyJump = true;
+	long delayJump = 500, lastJump;//the last time you jumped
+	boolean readyStart = true;
+	long delayStart = 10000, lastStart;//the timer for the start sequence
 
 	//gravity constant
 	private static final float GRAVITY = 0.2f;
@@ -30,10 +30,11 @@ public class TrackScreen extends BasicGameState {
 	int barrier = 0;
 	
 	//if you pause the game, or enter a new level
-	boolean keep = true;
+	boolean keep = true, start = false;
 	
+	//variables for time
 	float seconds = 0, minutes = 0, tempSpeed;
-	public static float fSecnd, fMnutes;
+	public static float fTime, oSpeed = 1.0f;
 
 	public TrackScreen(int id){
 		stateID = id;
@@ -49,7 +50,7 @@ public class TrackScreen extends BasicGameState {
 			//all sprites
 			player.x = 0;
 			player.y = 400;
-			player.speed = 1.0f;
+			player.speed = oSpeed;
 			player.jumpSpeed = -1.5f;
 			
 			blueS.x = 5000;
@@ -120,6 +121,7 @@ public class TrackScreen extends BasicGameState {
 		g.drawString("Time - " + (int)minutes + ":", 1070, 20);
 		g.drawString(""+String.format("%02d",(int)seconds), 1155, 20);
 		g.drawString("Barrier - "+barrier, 1070, 40);
+		//g.drawString(""+player.jumpSpeed, 1070, 60);
 	}//end drawHUD
 
 	@Override
@@ -132,13 +134,17 @@ public class TrackScreen extends BasicGameState {
 			seconds = 0;
 		}
 		
-		if(input.isKeyDown(Input.KEY_ESCAPE))
+		if(input.isKeyDown(Input.KEY_ESCAPE)){
+			PauseScreen.screen = 1;
 			sb.enterState(Main.PAUSESCREEN);
+		}
 		
 		if(barrier == 34 && blueS.x < 0){
 			keep = false;
-			fMnutes = minutes;
-			fSecnd = seconds;
+			fTime = (60 * minutes) + seconds;
+			LevelScreen.stat = 1;
+			if(HUBScreen.PR>=(int)fTime)
+				HUBScreen.PR = (int)fTime;
 			sb.enterState(Main.LEVELSCREEN);
 		}
 
@@ -159,11 +165,11 @@ public class TrackScreen extends BasicGameState {
 			player.x = 100;
 
 		//tells the sprite i am jumping
-		if(in.isKeyDown(Input.KEY_SPACE))
+		if(in.isKeyPressed(Input.KEY_SPACE))
 			player.jump(delta);
 
 		//updates and actually jumps
-		if(track2.x > gc.getWidth())
+		if(track2.x >= gc.getWidth())
 			player.updateJump(delta, GRAVITY, track);
 		else if(track.x > gc.getWidth())
 			player.updateJump(delta, GRAVITY, track2);
@@ -172,40 +178,40 @@ public class TrackScreen extends BasicGameState {
 		if(player.spriteCollision(blueS))
 			player.x = blueS.x + blueS.image.getWidth();
 
-		if((player.spriteCollision(blueS)) && ready){
+		if((player.spriteCollision(blueS)) && readyHit){
 			player.speed -= .01f;
-			ready = false;
+			readyHit = false;
 			lastHit = System.currentTimeMillis();
 		}
 
-		if(lastHit + delay <= System.currentTimeMillis())
-			ready = true;
+		if(lastHit + delayHit <= System.currentTimeMillis())
+			readyHit = true;
 		//end of timer for blue barrier
 
 		//this chunk of code slows player down if you hit the white barrier
 		if(player.spriteCollision(whiteS))
 			player.x = whiteS.x + whiteS.image.getWidth();
 
-		if((player.spriteCollision(whiteS)) && ready){
+		if((player.spriteCollision(whiteS)) && readyHit){
 			player.speed -= .01f;
-			ready = false;
+			readyHit = false;
 			lastHit = System.currentTimeMillis();
 		}
 
-		if(lastHit + delay <= System.currentTimeMillis())
-			ready = true;
+		if(lastHit + delayHit <= System.currentTimeMillis())
+			readyHit = true;
 		//end of timer for blue barrier
 
 		tempSpeed = player.speed;
 		//timer for waterJump
-		if((player.x > water.x+5) && (player.x < (water.x+water.image.getWidth())) && (player.y >= 338) && ready2){
+		if((player.x > water.x+5) && (player.x < (water.x+water.image.getWidth())) && (player.y >= 338) && readyJump){
 			player.speed = (float)tempSpeed/2;
-			ready2 = false;
+			readyJump = false;
 			lastJump = System.currentTimeMillis();
 		}
 
-		if(lastJump + delay2 <= System.currentTimeMillis() && ready2 == false){
-			ready2 = true;
+		if(lastJump + delayJump <= System.currentTimeMillis() && readyJump == false){
+			readyJump = true;
 			player.speed = tempSpeed*2;
 		}
 		//end timer for waterJump
@@ -230,10 +236,10 @@ public class TrackScreen extends BasicGameState {
 
 	public void moveMap() {
 		if(track.x+track.image.getWidth() <= 0)
-			track.x = track2.x + track2.image.getWidth();
+			track.x = track2.x + track2.image.getWidth() - 1;
 
 		if(track2.x+track2.image.getWidth() <= 0)
-			track2.x = track.x + track.image.getWidth();
+			track2.x = track.x + track.image.getWidth() - 1;
 	}//end moveMap
 
 	public void moveBarrier() {
@@ -287,8 +293,8 @@ public class TrackScreen extends BasicGameState {
 			s.x = gc.getWidth() - s.anim.getImage(0).getWidth();
 
 		//keep above the track
-		if(s.y + s.image.getHeight() > gc.getHeight() - track.image.getHeight())
-			s.y = gc.getHeight() - track.image.getHeight() - s.image.getHeight();
+		if(s.spriteCollision(track) || s.spriteCollision(track2))
+			s.y = gc.getHeight() - (s.image.getHeight() + track.image.getHeight());
 	}//end keepOnScreen Animated Sprite
 
 	@Override
